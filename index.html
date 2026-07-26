@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ハンズオン プロンプト集 — AIでつくる簡易BIダッシュボード</title>
+<meta name="description" content="第4回AI勉強会ハンズオンの配布用プロンプト集。データ説明文とステップ1〜3のプロンプトをコピーして使えます。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --color-accent:       oklch(58% 0.14 24deg);
+  --color-accent-deep:  oklch(42% 0.13 24deg);
+  --color-accent-tint:  color-mix(in oklch, var(--color-accent) 12%, transparent);
+  --color-accent-glow:  color-mix(in oklch, var(--color-accent) 35%, transparent);
+  --color-bridge:       oklch(50% 0.13 264deg);
+  --color-bridge-deep:  oklch(38% 0.12 264deg);
+  --color-bridge-tint:  color-mix(in oklch, var(--color-bridge) 12%, transparent);
+  --color-gold:         oklch(72% 0.13 80deg);
+  --color-gold-deep:    oklch(56% 0.12 78deg);
+  --color-ink:          oklch(15% 0.012 60deg);
+  --color-body:         oklch(34% 0.012 60deg);
+  --color-body-strong:  oklch(24% 0.012 60deg);
+  --color-muted:        oklch(48% 0.010 60deg);
+  --color-muted-soft:   oklch(60% 0.010 60deg);
+  --color-paper:        oklch(97% 0.012 82deg);
+  --color-paper-deep:   oklch(92% 0.014 82deg);
+  --color-paper-cream:  oklch(98.4% 0.010 82deg);
+  --shadow-paper: 0 2px 4px oklch(from var(--color-ink) l c h / 0.05),
+                  0 14px 36px oklch(from var(--color-ink) l c h / 0.09);
+  --font-display: 'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif;
+  --font-jp:      'Noto Sans JP', sans-serif;
+  --font-num:     'Space Grotesk', sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --noise-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: var(--font-jp);
+  color: var(--color-body);
+  background: var(--color-paper);
+  overflow: hidden;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+
+.bg-grain {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: var(--noise-svg);
+  mix-blend-mode: multiply;
+}
+.bg-static {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(at 14% 16%, color-mix(in oklch, var(--color-gold) 22%, transparent), transparent 50%),
+    radial-gradient(at 86% 22%, color-mix(in oklch, var(--color-bridge) 14%, transparent), transparent 54%),
+    radial-gradient(at 78% 84%, color-mix(in oklch, var(--color-accent) 18%, transparent), transparent 55%),
+    linear-gradient(180deg, var(--color-paper-cream) 0%, var(--color-paper) 58%, var(--color-paper-deep) 100%);
+}
+
+/* ── Header ── */
+.app-head {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between; gap: 1em;
+  padding: 1.1em clamp(1rem, 4vw, 2.4rem);
+  background: color-mix(in oklch, var(--color-paper-cream) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-ink) 8%, transparent);
+}
+.app-brand {
+  font-family: var(--font-num); font-weight: 700; font-size: clamp(0.92rem, 1.3vw, 1.05rem);
+  color: var(--color-ink); letter-spacing: 0.01em; white-space: nowrap;
+}
+.app-brand span {
+  display: inline-block; margin-left: 0.7em;
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em;
+  color: var(--color-accent-deep);
+  border: 1px solid color-mix(in oklch, var(--color-accent) 45%, transparent);
+  padding: 0.2em 0.7em; border-radius: 99px;
+}
+.app-nav { display: flex; align-items: center; gap: 0.6em; flex: 0 0 auto; }
+@media (max-width: 640px) {
+  .app-head { flex-wrap: wrap; padding: 0.7em 0.9em; gap: 0.5em; row-gap: 0.5em; }
+  .app-brand { font-size: 0.8rem; flex: 1 1 100%; }
+  .app-brand span { display: none; }
+  .app-nav { flex: 1 1 100%; justify-content: space-between; }
+  .nav-btn { padding: 0.5em 0.9em; font-size: 0.78rem; }
+  .page-counter { font-size: 0.72rem; }
+  .viewport { padding-top: 6.6rem; }
+}
+.nav-btn {
+  display: inline-flex; align-items: center; gap: 0.4em;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.86rem;
+  color: var(--color-ink); background: var(--color-paper-cream);
+  border: 1px solid color-mix(in oklch, var(--color-ink) 16%, transparent);
+  padding: 0.5em 1.1em; border-radius: 99px; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+}
+.nav-btn:hover { background: var(--color-accent-tint); border-color: var(--color-accent); }
+.nav-btn:disabled { opacity: 0.35; cursor: default; }
+.nav-btn:disabled:hover { background: var(--color-paper-cream); border-color: color-mix(in oklch, var(--color-ink) 16%, transparent); }
+.page-counter {
+  font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.12em;
+  color: var(--color-muted); white-space: nowrap;
+}
+
+/* ── Progress bar ── */
+.progress-rail {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 11;
+  background: color-mix(in oklch, var(--color-ink) 8%, transparent);
+}
+.progress-fill {
+  height: 100%; width: 12.5%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-bridge));
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── Main viewport ── */
+.viewport {
+  position: fixed; inset: 0;
+  padding-top: clamp(4.2rem, 9vh, 5.2rem);
+  padding-bottom: clamp(3.6rem, 8vh, 4.4rem);
+}
+.page {
+  display: none;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.4rem clamp(1.2rem, 6vw, 5rem) 3rem;
+}
+.page.is-active { display: block; }
+.page-inner { max-width: 880px; margin: 0 auto; }
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 0.6em;
+  font-family: var(--font-mono); font-size: clamp(0.72rem, 1vw, 0.85rem);
+  font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--color-accent-deep);
+}
+.eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--color-accent); }
+.eyebrow.idg { color: var(--color-bridge-deep); }
+.eyebrow.idg::before { background: var(--color-bridge); }
+
+h1.page-title, h2.page-title {
+  margin: 0.5em 0 0;
+  font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(1.7rem, 3.6vw, 2.5rem); line-height: 1.35;
+  letter-spacing: -0.01em; color: var(--color-ink);
+}
+.page-title .mark {
+  background: linear-gradient(180deg, transparent 62%, var(--color-accent-glow) 62%);
+  padding: 0 0.05em;
+}
+.page-lead {
+  margin: 1.1em 0 0; max-width: 42em;
+  font-size: clamp(0.92rem, 1.15vw, 1.05rem); line-height: 1.95;
+  color: var(--color-body);
+}
+.page-lead strong { color: var(--color-body-strong); font-weight: 700; }
+
+/* ── Code box ── */
+.code-box {
+  position: relative;
+  margin-top: 1.8em;
+  background: var(--color-paper-cream);
+  border: 1px solid color-mix(in oklch, var(--color-bridge) 24%, transparent);
+  border-left: 3px solid var(--color-bridge);
+  box-shadow: var(--shadow-paper);
+}
+.code-box-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 1em;
+  padding: 0.7em 1.1em;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+}
+.code-box-label {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--color-bridge-deep);
+}
+.copy-btn {
+  display: inline-flex; align-items: center; gap: 0.45em;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.82rem;
+  color: var(--color-bridge-deep);
+  background: color-mix(in oklch, var(--color-bridge) 8%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-bridge) 40%, transparent);
+  padding: 0.4em 0.95em; border-radius: 99px; cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.copy-btn:hover { background: color-mix(in oklch, var(--color-bridge) 16%, transparent); }
+.copy-btn:active { transform: scale(0.96); }
+.copy-btn svg { width: 14px; height: 14px; flex: 0 0 auto; }
+.copy-btn.is-copied { color: var(--color-paper-cream); background: var(--color-bridge); border-color: var(--color-bridge); }
+.code-box pre {
+  margin: 0; padding: 1.1em 1.3em;
+  white-space: pre; overflow-x: auto;
+  font-family: var(--font-mono); font-size: clamp(0.72rem, 0.88vw, 0.85rem);
+  line-height: 1.75; color: var(--color-body-strong);
+}
+.code-note {
+  margin: 0.9em 0 0; font-size: 0.86rem; color: var(--color-muted); line-height: 1.7;
+}
+
+/* ── 3列カード ── */
+.cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2em; margin-top: 2em; }
+@media (max-width: 760px) { .cols-3 { grid-template-columns: 1fr; } }
+.flow-card {
+  background: var(--color-paper-cream);
+  border: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+  box-shadow: var(--shadow-paper);
+  padding: 1.4em 1.3em;
+}
+.flow-card .flow-num {
+  font-family: var(--font-num); font-weight: 700; font-size: 1.5rem;
+  color: var(--color-accent);
+}
+.flow-card:nth-child(2) .flow-num { color: var(--color-bridge); }
+.flow-card:nth-child(3) .flow-num { color: var(--color-gold-deep); }
+.flow-card .flow-title {
+  display: block; margin-top: 0.5em;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--color-ink);
+}
+.flow-card .flow-desc { margin-top: 0.5em; font-size: 0.86rem; line-height: 1.7; color: var(--color-body); }
+
+.thread-note {
+  display: flex; align-items: flex-start; gap: 1em;
+  margin-top: 1.6em; padding: 1em 1.3em;
+  background: color-mix(in oklch, var(--color-gold) 12%, var(--color-paper-cream));
+  border-left: 3px solid var(--color-gold-deep);
+}
+.thread-note .label {
+  flex: 0 0 auto; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.18em;
+  color: var(--color-gold-deep); padding-top: 0.15em;
+}
+.thread-note p { margin: 0; font-size: 0.9rem; line-height: 1.8; color: var(--color-body-strong); }
+
+/* ── TOC(表紙のページ一覧) ── */
+.toc-list { list-style: none; margin: 2em 0 0; padding: 0; display: grid; gap: 0.6em; }
+.toc-item {
+  display: flex; align-items: center; gap: 1em; width: 100%;
+  background: var(--color-paper-cream);
+  border: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+  padding: 0.9em 1.2em; cursor: pointer; text-align: left;
+  font-family: var(--font-jp); transition: border-color 0.2s, transform 0.2s;
+}
+.toc-item:hover { border-color: var(--color-accent); transform: translateX(4px); }
+.toc-num {
+  flex: 0 0 auto; font-family: var(--font-num); font-weight: 700; font-size: 1.1rem;
+  color: var(--color-accent); width: 1.8em;
+}
+.toc-title { font-weight: 700; color: var(--color-ink); font-size: 0.95rem; }
+.toc-desc { display: block; margin-top: 0.15em; font-size: 0.8rem; color: var(--color-muted); font-weight: 400; }
+
+/* ── 用語集 ── */
+.glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 2em; }
+@media (max-width: 640px) { .glossary-grid { grid-template-columns: 1fr; } }
+.glossary-item {
+  padding: 1.1em 1.4em;
+  border-top: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent);
+}
+.glossary-grid .glossary-item:nth-child(1),
+.glossary-grid .glossary-item:nth-child(2) { border-top: none; }
+.glossary-grid .glossary-item:nth-child(odd) { border-right: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent); }
+@media (max-width: 640px) { .glossary-grid .glossary-item:nth-child(odd) { border-right: none; } }
+.glossary-term {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.98rem; color: var(--color-ink);
+}
+.glossary-desc { margin-top: 0.4em; font-size: 0.85rem; line-height: 1.75; color: var(--color-body); }
+
+/* ── Footer nav (dots) ── */
+.foot-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 1em; background: color-mix(in oklch, var(--color-paper-cream) 80%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid color-mix(in oklch, var(--color-ink) 8%, transparent);
+  flex-wrap: wrap;
+}
+.foot-nav button {
+  width: 8px; height: 8px; border-radius: 50%; border: none; padding: 0; cursor: pointer;
+  background: color-mix(in oklch, var(--color-accent) 25%, transparent);
+  transition: all 0.25s;
+}
+.foot-nav button[aria-current="true"] {
+  width: 22px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-bridge));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-static" aria-hidden="true"></div>
+<div class="bg-grain" aria-hidden="true"></div>
+<div class="progress-rail" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+
+<header class="app-head">
+  <span class="app-brand">ハンズオン プロンプト集<span>第4回 AI勉強会</span></span>
+  <div class="app-nav">
+    <button class="nav-btn" id="prevBtn" type="button" aria-label="前のページ">← 前へ</button>
+    <span class="page-counter" id="pageCounter">01 / 08</span>
+    <button class="nav-btn" id="nextBtn" type="button" aria-label="次のページ">次へ →</button>
+  </div>
+</header>
+
+<main class="viewport">
+
+  <!-- 01 表紙 -->
+  <section class="page is-active" data-page="1" aria-label="表紙">
+    <div class="page-inner">
+      <span class="eyebrow">How to Use</span>
+      <h1 class="page-title">ハンズオン<span class="mark">プロンプト集</span></h1>
+      <p class="page-lead">AIでつくる簡易BIダッシュボードのハンズオンで使う、コピペ用のプロンプト集です。各ページのコードブロック右上の<strong>「コピー」ボタン</strong>を押して、AIチャットに貼り付けてください。</p>
+      <div class="cols-3">
+        <div class="flow-card">
+          <span class="flow-num">01</span>
+          <span class="flow-title">可視化の検討</span>
+          <p class="flow-desc">データ説明文を貼り、AIと壁打ちしながら要件を固めます。</p>
+        </div>
+        <div class="flow-card">
+          <span class="flow-num">02</span>
+          <span class="flow-title">デザイン</span>
+          <p class="flow-desc">見た目を相談し、要件+デザインを設計仕様書にまとめます。</p>
+        </div>
+        <div class="flow-card">
+          <span class="flow-num">03</span>
+          <span class="flow-title">実装</span>
+          <p class="flow-desc">新しいスレッドに設計仕様書を貼り、単一HTMLを作らせます。</p>
+        </div>
+      </div>
+      <div class="thread-note">
+        <span class="label">THREAD</span>
+        <p>スレッドの使い分け:<strong>ステップ1・2は同じスレッド、ステップ3は新しいスレッド</strong>で進めてください。</p>
+      </div>
+      <ul class="toc-list">
+        <li><button class="toc-item" data-goto="2"><span class="toc-num">02</span><span><span class="toc-title">データ説明文(データA:問い合わせ)</span><span class="toc-desc">全23列のコピペ用データ説明</span></span></button></li>
+        <li><button class="toc-item" data-goto="3"><span class="toc-num">03</span><span><span class="toc-title">データ説明文(データB:商談)</span><span class="toc-desc">全22列のコピペ用データ説明</span></span></button></li>
+        <li><button class="toc-item" data-goto="4"><span class="toc-num">04</span><span><span class="toc-title">データ説明文(データC:塗料の配合実験)</span><span class="toc-desc">全25列のコピペ用データ説明</span></span></button></li>
+        <li><button class="toc-item" data-goto="5"><span class="toc-num">05</span><span><span class="toc-title">ステップ1:可視化の検討(壁打ち)</span><span class="toc-desc">同じスレッドで要件を固める</span></span></button></li>
+        <li><button class="toc-item" data-goto="6"><span class="toc-num">06</span><span><span class="toc-title">ステップ2:デザイン → 設計仕様書</span><span class="toc-desc">同じスレッドで続ける</span></span></button></li>
+        <li><button class="toc-item" data-goto="7"><span class="toc-num">07</span><span><span class="toc-title">ステップ3:実装(新規スレッド)</span><span class="toc-desc">新しいスレッドで一気に作らせる</span></span></button></li>
+        <li><button class="toc-item" data-goto="8"><span class="toc-num">08</span><span><span class="toc-title">付録:用語集</span><span class="toc-desc">初心者向けの技術用語</span></span></button></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 データA -->
+  <section class="page" data-page="2" aria-label="データA説明文">
+    <div class="page-inner">
+      <span class="eyebrow">Dataset A</span>
+      <h2 class="page-title">データ説明文 — <span class="mark">問い合わせ</span>(データA)</h2>
+      <p class="page-lead">問い合わせ対応ログを選んだ方は、このブロックをコピーして、ステップ1のプロンプトの「データ説明文を貼る」の部分に貼り付けてください。</p>
+      <div class="code-box">
+        <div class="code-box-head">
+          <span class="code-box-label">Data Description — A</span>
+          <button class="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V4.5A1.5 1.5 0 0 1 6.5 3H15"/></svg><span class="copy-btn-text">コピー</span></button>
+        </div>
+        <pre>問い合わせ対応のログ(CSV)
+
+# 粒度
+1行 = 1件の問い合わせ(チケット)。全23列。
+
+# 列の定義
+| 列名 | 形式 | 内容・値の範囲 |
+| --- | --- | --- |
+| 問い合わせID | 文字列 | 例: INQ-202504-00012(年月+通番)。一意。 |
+| 受付日時 | 日時(YYYY-MM-DD HH:MM) | 問い合わせを受けた日時。全行に必ず入る。 |
+| 初回応答日時 | 日時 または 空 | 担当者の初回対応日時。空欄=まだ応答していない(ステータス=受付)。受付日時より後。 |
+| 解決日時 | 日時 または 空 | 解決日時。空欄=まだ解決していない(ステータス≠解決/クローズ)。初回応答日時より後。 |
+| チャネル | カテゴリ | 電話 / メール / チャット / Web |
+| 製品 | カテゴリ | スマート勤怠 / クラウド経費 |
+| カテゴリ | カテゴリ | 使い方 / 不具合 / 仕様確認 / 請求 / 要望 |
+| 中分類 | カテゴリ | カテゴリの下位区分(例: 使い方→初期設定/操作方法/権限設定/データ移行) |
+| 問い合わせ種別 | カテゴリ | 質問 / クレーム / 要望 / 障害報告 |
+| 優先度番号 | 整数(int) | 1=高 / 2=中 / 3=低(「優先度」とペア) |
+| 優先度 | カテゴリ | 高 / 中 / 低 |
+| 顧客区分 | カテゴリ | 大企業 / 中小 / 個人事業主 |
+| ステータス番号 | 整数(int) | 1=受付 / 2=対応中 / 3=保留 / 4=解決 / 5=クローズ |
+| ステータス | カテゴリ | 受付 / 対応中 / 保留 / 解決 / クローズ(番号とペア) |
+| フェーズ番号 | 整数(int) | 1=受付 / 2=一次対応 / 3=エスカレ / 4=解決 / 5=完了 |
+| フェーズ | カテゴリ | 上記の名称(番号とペア)。ステータスに沿って進む。 |
+| エスカレ有無 | 整数(0/1) | 1=上位チームへエスカレ。不具合・障害報告で1になりやすい。 |
+| 再オープン有無 | 整数(0/1) | 1=一度解決した件を再オープン(解決/クローズのみ1になりうる)。 |
+| 対応チーム | カテゴリ | 一次窓口 / 技術サポート / 品質保証 |
+| 担当者 | 文字列 | 担当者名(チームに属する)。 |
+| 満足度 | 整数(int, 1〜5) または 空 | 顧客評価。空欄=未評価(解決/クローズのみ設定)。 |
+| 件名 | 文字列 | 問い合わせの短い件名。 |
+| 自由記述 | 文字列 | 自由文(顧客の声など)。 |
+
+# 留意点
+- 直近の月ほど「未解決(受付/対応中/保留)」が残る。古いものは概ね解決/クローズ済み。
+- 番号列と名称列は常にペア(同じ番号=同じ名称)。
+- 応答時間(=初回応答日時−受付日時)・処理時間(=解決日時−受付日時)は列に無い。必要なら算出する。</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 データB -->
+  <section class="page" data-page="3" aria-label="データB説明文">
+    <div class="page-inner">
+      <span class="eyebrow idg">Dataset B</span>
+      <h2 class="page-title">データ説明文 — <span class="mark">商談</span>(データB)</h2>
+      <p class="page-lead">商談パイプラインを選んだ方は、このブロックをコピーして、ステップ1のプロンプトの「データ説明文を貼る」の部分に貼り付けてください。</p>
+      <div class="code-box">
+        <div class="code-box-head">
+          <span class="code-box-label">Data Description — B</span>
+          <button class="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V4.5A1.5 1.5 0 0 1 6.5 3H15"/></svg><span class="copy-btn-text">コピー</span></button>
+        </div>
+        <pre>商談(案件)パイプラインのデータ(CSV)
+
+# 粒度
+1行 = 1件の商談(案件/オポチュニティ)。全22列。
+
+# 列の定義
+| 列名 | 形式 | 内容・値の範囲 |
+| --- | --- | --- |
+| 商談ID | 文字列 | 例: OPP-202504-00012(年月+通番)。一意。 |
+| 顧客企業名 | 文字列 | 顧客の法人名。同じ企業が複数商談を持つ(マスタ的な軸)。 |
+| 商談発生日 | 日付(YYYY-MM-DD) | 商談が立ち上がった日。全行に必ず入る。 |
+| クローズ日 | 日付 または 空 | 受注/失注で確定した日。空欄=未クローズ(進行中/保留)。発生日以降。 |
+| 最終活動日 | 日付 | 最後の活動日。発生日以降、クローズ日以前(クローズ済みの場合)。 |
+| 業種 | カテゴリ | 製造 / 流通 / 金融 / 公共 / IT |
+| 製品 | カテゴリ | スマート勤怠 / クラウド経費 / 統合ダッシュボード |
+| 商談区分 | カテゴリ | 新規 / 既存深耕 / 更新 |
+| リード獲得元 | カテゴリ | 展示会 / 紹介 / Web / インバウンド |
+| エリア | カテゴリ | 関東 / 関西 / 中部 / 九州 |
+| 企業規模 | カテゴリ | 大企業 / 中堅 / 中小 |
+| ステージ番号 | 整数(int) | 1=リード / 2=ヒアリング / 3=提案 / 4=見積 / 5=最終交渉 / 6=クロージング |
+| ステージ | カテゴリ | 上記の名称(番号とペア)。進行段階。 |
+| ステータス番号 | 整数(int) | 1=進行中 / 2=受注 / 3=失注 / 4=保留 |
+| ステータス | カテゴリ | 進行中 / 受注 / 失注 / 保留(番号とペア)。 |
+| 受注確度 | 整数(int, 0〜100, %) | 受注=100、失注=0、進行中はステージに応じて10〜80。 |
+| 失注理由 | カテゴリ または 空 | 価格 / 競合 / 時期 / 予算 / 要件不一致。空欄=失注以外。 |
+| 営業チーム | カテゴリ | 第一営業部 / 西日本営業部 |
+| 営業担当 | 文字列 | 担当者名(チームに属する)。 |
+| 金額 | 整数(int, 円) | 案件金額。1万円単位(10000の倍数)。企業規模に応じて概ね30万〜1,200万円。 |
+| 商談名 | 文字列 | 案件名。 |
+| 次のアクション | 文字列 または 空 | 次のTodo。空欄=受注/失注(クローズ済み)。 |
+
+# 留意点
+- 直近の月ほど「未クローズ(進行中/保留)」が残る。古いものは概ね受注/失注済み。
+- 番号列と名称列は常にペア(同じ番号=同じ名称)。
+- 加重金額(=金額×受注確度)・商談日数(=クローズ日−発生日)は列に無い。必要なら算出する。</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 データC -->
+  <section class="page" data-page="4" aria-label="データC説明文">
+    <div class="page-inner">
+      <span class="eyebrow">Dataset C</span>
+      <h2 class="page-title">データ説明文 — <span class="mark">塗料の配合実験</span>(データC)</h2>
+      <p class="page-lead">塗料コーティングの試作実験データを選んだ方は、このブロックをコピーして、ステップ1のプロンプトの「データ説明文を貼る」の部分に貼り付けてください。</p>
+      <div class="code-box">
+        <div class="code-box-head">
+          <span class="code-box-label">Data Description — C</span>
+          <button class="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V4.5A1.5 1.5 0 0 1 6.5 3H15"/></svg><span class="copy-btn-text">コピー</span></button>
+        </div>
+        <pre>塗料コーティングの試作実験データ(CSV)
+
+# 粒度
+1行 = 1件の試作(配合レシピ×塗装条件の1組み合わせ)。全25列。
+同じレシピIDが複数の試作に登場する(1つのレシピを複数の条件で試している)。
+
+# 列の定義
+| 列名 | 形式 | 内容・値の範囲 |
+| --- | --- | --- |
+| 試作ID | 文字列 | 例: TRIAL-202504-00012(年月+通番)。一意。 |
+| 実験日 | 日付(YYYY-MM-DD) | 試作した日。全行に必ず入る。 |
+| 開発テーマ | カテゴリ | 外装用耐候 / 金属防食 / 屋内意匠 / 水回り用 |
+| レシピID | 文字列 | RCP-01〜RCP-28。同じIDなら配合6列(ベース樹脂〜添加剤)は必ず同じ値。 |
+| ベース樹脂 | カテゴリ | アクリル / エポキシ / ウレタン / シリコン変性 |
+| 溶剤系 | カテゴリ | 水系 / 溶剤系 |
+| 顔料種 | カテゴリ | 酸化チタン / カーボンブラック / 酸化鉄 / 有機顔料 |
+| 顔料濃度 | 整数(%) | 10〜45。配合中の顔料の割合。 |
+| 架橋剤量 | 小数(%) | 0.0〜10.0(0.5刻み)。 |
+| 添加剤 | カテゴリ | 分散剤 / 消泡剤 / レベリング剤 / なし |
+| 下地処理 | カテゴリ | なし / 脱脂 / プライマー / ブラスト |
+| 膜厚 | 整数(μm) | 15〜120(5刻み)。 |
+| 乾燥温度 | 整数(℃) | 20〜140(5刻み)。 |
+| 乾燥時間 | 整数(分) | 10〜120(10刻み)。 |
+| ステータス番号 | 整数(int) | 1=試作済 / 2=試験中 / 3=評価完了 / 4=中止 |
+| ステータス | カテゴリ | 上記の名称(番号とペア)。 |
+| 冷熱サイクル数 | 整数(回) または 空 | -30℃⇔80℃を1サイクルとし、異常が出るまでの回数。500回で打ち切るため500は「完走・異常なし」。10刻み。評価完了のみ入る。 |
+| 硬度番号 | 整数 または 空 | 1〜8(鉛筆硬度とペア)。 |
+| 鉛筆硬度 | カテゴリ または 空 | 1=2B / 2=B / 3=HB / 4=F / 5=H / 6=2H / 7=3H / 8=4H |
+| 光沢度 | 小数(GU) または 空 | 60度光沢。5.0〜98.0。 |
+| 耐水試験日数 | 整数(日) または 空 | 7 / 14 / 30 / 60。試験に投入した場合のみ。 |
+| 耐水性評価番号 | 整数 または 空 | 1〜5。 |
+| 耐水性評価 | カテゴリ または 空 | 1=剥離 / 2=白化 / 3=わずかな変化 / 4=ほぼ変化なし / 5=異常なし(番号とペア)。評価完了のみ入る。 |
+| 実験担当者 | 文字列 | 試作を担当した開発メンバー名。 |
+| 備考 | 文字列 または 空 | 結果の所見や中止理由の自由記述。 |
+
+# 留意点
+- 空欄には2つの意味がある。「試作済」「中止」は測定値がすべて空欄、「試験中」は硬度・光沢だけ入り、冷熱サイクル数と耐水性評価が空欄。
+- 冷熱サイクル試験は数ヶ月かかるため、直近の試作ほど「試験中」で結果が出ていない。
+- 番号列と名称列は常にペア(同じ番号=同じ名称)。
+- 乾燥熱量(=乾燥温度×乾燥時間)・耐久と耐水性の両立スコア・レシピ別の平均やばらつきは列に無い。必要なら算出する。
+- 物性は互いにトレードオフの関係にある。1つの指標だけを最大化しても良い配合にはならない。</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 ステップ1 -->
+  <section class="page" data-page="5" aria-label="ステップ1">
+    <div class="page-inner">
+      <span class="eyebrow">Step 1 — 壁打ち</span>
+      <h2 class="page-title">ステップ1:可視化の検討 <span class="mark">(壁打ち)</span></h2>
+      <p class="page-lead">目的:どんな指標・グラフにするかをAIと相談し、要件を固めます。<strong>選んだデータのデータ説明文</strong>(前のページ)を「データ説明文を貼る」の部分に貼り付けてください。</p>
+      <div class="code-box">
+        <div class="code-box-head">
+          <span class="code-box-label">Prompt — Step 1</span>
+          <button class="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V4.5A1.5 1.5 0 0 1 6.5 3H15"/></svg><span class="copy-btn-text">コピー</span></button>
+        </div>
+        <pre>あなたはBI(ダッシュボード)設計の専門家です。私と一緒に、業務データを可視化するダッシュボードの要件を決めてください。
+
+# 私のデータ(説明文)
+（ここに上の「データ説明文」を貼る）
+
+# 私の目的・見たいこと（空欄でもOK。書ける分だけ書くと、より自分ごとになります）
+- 目的（何のために見る？）:（例: 月次レビューで現状を把握し、翌月の打ち手を決めたい）
+- 見たい可視化・指標:（例: 月次の推移 / 内訳 / 担当者ごとの負荷 / 前月比）
+- 重視したい観点:（例: 継続案件の偏り / 増減の兆し / 担当者の得意・苦手）
+- 欲しい機能・操作:（例: 明細テーブルを担当者・状況で絞れる / 棒グラフをクリックすると他のグラフも連動して絞り込まれる(クロスフィルタ) / カテゴリ→中分類へドリルダウン）
+
+# お願い
+- 私の目的を引き出す質問をしながら、載せるべきKPI・グラフ・操作(クロスフィルタなど)を一緒に要件化してください。
+- やり取りの結果を、「何を作るか」の要件として整理していきます。
+- コードは生成せず、不明点が明らかになったタイミングで要件のみを出力してください。
+
+# 進め方の方針(重要)
+- いきなり大きなダッシュボードを設計しないでください。まず「最小構成(コア)」を提案してください。
+- コアの目安は、KPIカード2〜3個 + グラフ2〜3個 + 明細テーブル1つ程度までです。
+- 私がたくさん要望を挙げた場合も、「まず作るコア」と「後から足す拡張案」に必ず分けて整理してください。
+- 各項目について「これは最初から本当に必要か?」を一度問い返してください。
+- 迷ったときは、機能を足す方向ではなく減らす方向で提案してください。
+
+# 必ず守る制約
+- 出力は単一のHTMLファイル1つで完結(CSSやJSに分割しない)。
+- CSVはセキュリティ(CORS/ローカルファイル制限)のため、ファイル選択ボタンとドラッグ&ドロップで手動アップロードする方式にする(自動読み込みはしない)。</pre>
+      </div>
+      <div class="thread-note">
+        <span class="label">POINT</span>
+        <p>まずは<strong>最小構成のシンプルなもの</strong>を目指しましょう。最初から多機能にすると、エラーが多く発生して修正が大変になりがちです。<strong>最低限必要なものから作り</strong>、欲しい機能は後から追加するか、別のダッシュボードに分けて作ることを検討してください。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 ステップ2 -->
+  <section class="page" data-page="6" aria-label="ステップ2">
+    <div class="page-inner">
+      <span class="eyebrow">Step 2 — 設計</span>
+      <h2 class="page-title">ステップ2:デザイン → <span class="mark">設計仕様書</span></h2>
+      <p class="page-lead">目的:見た目を相談し、ここまでの要件とデザインを1つの「設計仕様書」にまとめます。<strong>ステップ1と同じスレッド</strong>で続けてください。</p>
+      <div class="code-box">
+        <div class="code-box-head">
+          <span class="code-box-label">Prompt — Step 2</span>
+          <button class="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V4.5A1.5 1.5 0 0 1 6.5 3H15"/></svg><span class="copy-btn-text">コピー</span></button>
+        </div>
+        <pre>次にデザイン(レイアウト・配色・KPIの並び)も相談させてください。
+決まったら、これまでの内容(要件 + デザイン)を1つの「設計仕様書」にまとめ、コードブロックで出力してください。
+コードは絶対に生成しないでください
+
+# デザインの希望（空欄でもOK。あるとイメージに近づきます）
+- 雰囲気・トーン:（例: シンプルで標準的 / 落ち着いた誌面風 / ダーク / ポップ 等）
+- 配色:（例: ネイビー基調 / 暖色系 / モノクロ / 自社カラー 等）
+- レイアウトの希望:（例: KPIを上部に並べる / グラフは2段 / 明細は下 等）
+- 見せ方のこだわり:（例: 数字を大きく / 余白を広め / 各グラフにタイトル 等）
+
+
+# 範囲の方針(重要)
+- 設計仕様書には「最小構成(コア)」だけを記載してください。
+- 拡張したい項目は「発展案(今回は実装しない)」として、仕様書の末尾に分けて箇条書きしてください。
+- デザインも凝りすぎず、標準的で破綻しにくい構成を優先してください。
+
+設計仕様書には、次の制約を必ず含めてください:
+- 単一のHTMLファイル1つ(CSS/JS分割なし)
+- Chart.jsとPapaParseをCDNで読み込む
+- CSVは手動アップロード(ファイル選択+ドラッグ&ドロップ)
+- 出力は全文を1つのコードブロックで</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 ステップ3 -->
+  <section class="page" data-page="7" aria-label="ステップ3">
+    <div class="page-inner">
+      <span class="eyebrow idg">Step 3 — 実装</span>
+      <h2 class="page-title">ステップ3:実装 <span class="mark">(新規スレッド)</span></h2>
+      <p class="page-lead">目的:まっさらな<strong>新しいスレッド</strong>で、設計仕様書とデータ説明文から一気に作らせます。</p>
+      <div class="code-box">
+        <div class="code-box-head">
+          <span class="code-box-label">Prompt — Step 3</span>
+          <button class="copy-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V4.5A1.5 1.5 0 0 1 6.5 3H15"/></svg><span class="copy-btn-text">コピー</span></button>
+        </div>
+        <pre>次の仕様で、単一HTMLで動くBIダッシュボードを作ってください。出力はコピペできるよう、全文を1つのコードブロックで出してください。
+
+# 設計仕様書
+(ここにステップ2で作成した設計仕様書を貼る)
+# 使用データ
+（ここに上の「データ説明文」を貼る）
+
+# 制約
+- 単一のHTMLファイル1つ。CSSやJSに分割しない。
+- Chart.jsとPapaParseはCDNで読み込む。
+- CSVはファイル選択ボタン+ドラッグ&ドロップで手動読み込み。自動では読み込まない。
+- F12(開発者ツール)を開かなくても状態が分かるよう、**エラーは画面上に分かりやすい日本語で表示**(Consoleだけに出さない)。読み込み失敗・必須列の欠落・データ空などで、修正するAIエージェントに何を伝えればよいか分かるメッセージを出すこと。
+- 設計仕様書に書かれた機能だけを実装してください。気を利かせて機能を追加しないでください。
+- 「発展案」と書かれた項目は実装しないでください。
+- 動くことを最優先し、凝った演出やアニメーションは入れないでください。</pre>
+      </div>
+      <p class="code-note">保存して開く:コードブロックを <code>〇〇.html</code> として保存 → ダブルクリックでブラウザで開く → 画面のボタン/ドロップからCSVを読み込む。</p>
+    </div>
+  </section>
+
+  <!-- 08 用語集 -->
+  <section class="page" data-page="8" aria-label="用語集">
+    <div class="page-inner">
+      <span class="eyebrow">Glossary</span>
+      <h2 class="page-title">付録:<span class="mark">用語集</span></h2>
+      <p class="page-lead">初心者向けの技術用語です。壁打ち中に分からない言葉が出てきたら、このページを開いてください。</p>
+      <div class="glossary-grid">
+        <div class="glossary-item"><span class="glossary-term">HTML</span><p class="glossary-desc">ウェブページを作る言語(ファイルの拡張子は .html)。Chrome等のブラウザで開くと画面が表示される。今回のBIはこのファイル1つで動く。</p></div>
+        <div class="glossary-item"><span class="glossary-term">CSS</span><p class="glossary-desc">HTMLの「見た目」(色・文字の大きさ・配置)を指定する仕組み。</p></div>
+        <div class="glossary-item"><span class="glossary-term">JavaScript(JS)</span><p class="glossary-desc">HTMLに「動き」を与えるプログラム言語。ボタンを押した時の動作やグラフ描画などを担う。今回のBIでも使われる。</p></div>
+        <div class="glossary-item"><span class="glossary-term">Markdown</span><p class="glossary-desc">簡単な記号(#・-・| 等)で見出し・箇条書き・表を書けるテキストの書式。このプロンプト集もMarkdown。AIチャットに貼ると整形されて表示される。</p></div>
+        <div class="glossary-item"><span class="glossary-term">CSV</span><p class="glossary-desc">表データをカンマ(,)区切りで保存したファイル(拡張子 .csv)。Excel等でも開ける。今回のデータA/B/Cはこの形式。</p></div>
+        <div class="glossary-item"><span class="glossary-term">CDN</span><p class="glossary-desc">便利なプログラムの部品(ライブラリ)を、ネット経由で読み込んで使う仕組み。ファイルを手元に用意しなくて済む。</p></div>
+        <div class="glossary-item"><span class="glossary-term">Chart.js</span><p class="glossary-desc">折れ線・棒・円などのグラフを手軽に描ける無料の部品。AIがHTMLに組み込んで使う。</p></div>
+        <div class="glossary-item"><span class="glossary-term">PapaParse</span><p class="glossary-desc">CSVを読み込み、プログラムで扱いやすい形に変換する無料の部品。</p></div>
+        <div class="glossary-item"><span class="glossary-term">F12 / 開発者ツール</span><p class="glossary-desc">ブラウザの機能で、画面の裏側(エラーやプログラム)を確認できる。キーボードのF12キーで開く。</p></div>
+        <div class="glossary-item"><span class="glossary-term">Console(コンソール)</span><p class="glossary-desc">開発者ツール内の画面で、エラー等のメッセージが出る場所。画面が真っ白になった時の原因確認に使う。</p></div>
+        <div class="glossary-item"><span class="glossary-term">CORS</span><p class="glossary-desc">ブラウザのセキュリティ決まりの1つ。ローカルのHTMLが勝手にファイルを読むのを止める。だからCSVは「手動で選んで」読み込ませる必要がある。</p></div>
+        <div class="glossary-item"><span class="glossary-term">スレッド</span><p class="glossary-desc">AIチャットの1つの会話のまとまり。同じスレッドでは文脈(それまでのやり取り)が引き継がれる。「新規スレッド」は文脈をリセットして最初から。</p></div>
+        <div class="glossary-item"><span class="glossary-term">コードブロック</span><p class="glossary-desc">AIの出力で ``` に囲まれた領域。プログラムがそのままコピーできる形で出力される。</p></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="foot-nav" id="footNav" aria-label="ページナビゲーション"></nav>
+
+<script>
+'use strict';
+const pages = [...document.querySelectorAll('.page')];
+const total = pages.length;
+const footNav = document.getElementById('footNav');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const pageCounter = document.getElementById('pageCounter');
+const progressFill = document.getElementById('progressFill');
+let current = 1;
+
+pages.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('aria-label', 'ページ ' + (i + 1));
+  if (i === 0) b.setAttribute('aria-current', 'true');
+  b.addEventListener('click', () => goTo(i + 1));
+  footNav.appendChild(b);
+});
+
+function goTo(n) {
+  n = Math.min(Math.max(n, 1), total);
+  if (n === current) { render(); return; }
+  current = n;
+  render();
+  pages[current - 1].scrollTop = 0;
+}
+
+function render() {
+  pages.forEach(p => p.classList.toggle('is-active', Number(p.dataset.page) === current));
+  [...footNav.children].forEach((b, i) => {
+    if (i === current - 1) b.setAttribute('aria-current', 'true');
+    else b.removeAttribute('aria-current');
+  });
+  pageCounter.textContent = String(current).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+  progressFill.style.width = (current / total * 100) + '%';
+  prevBtn.disabled = current === 1;
+  nextBtn.disabled = current === total;
+}
+
+prevBtn.addEventListener('click', () => goTo(current - 1));
+nextBtn.addEventListener('click', () => goTo(current + 1));
+document.querySelectorAll('[data-goto]').forEach(el => {
+  el.addEventListener('click', () => goTo(Number(el.dataset.goto)));
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') goTo(current + 1);
+  else if (e.key === 'ArrowLeft') goTo(current - 1);
+  else if (e.key === 'Home') goTo(1);
+  else if (e.key === 'End') goTo(total);
+});
+
+/* ── コピー機能 ── */
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const pre = btn.closest('.code-box').querySelector('pre');
+    const text = pre.textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    const label = btn.querySelector('.copy-btn-text');
+    const original = label.textContent;
+    label.textContent = 'コピーしました';
+    btn.classList.add('is-copied');
+    setTimeout(() => {
+      label.textContent = original;
+      btn.classList.remove('is-copied');
+    }, 1800);
+  });
+});
+
+render();
+</script>
+</body>
+</html>
