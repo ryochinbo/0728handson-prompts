@@ -200,6 +200,30 @@ h1.page-title, h2.page-title {
   margin: 0.9em 0 0; font-size: 0.86rem; color: var(--color-muted); line-height: 1.7;
 }
 
+/* ── 記入欄・貼り付け欄の説明 ── */
+.fill-guide { list-style: none; margin: 1.5em 0 0; padding: 0; }
+.fill-guide li {
+  display: grid; grid-template-columns: minmax(8em, auto) 1fr; gap: 1.1em;
+  align-items: baseline; padding: 0.9em 0;
+  border-top: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent);
+}
+.fill-guide li:first-child { border-top: none; }
+.fill-guide .fill-key {
+  justify-self: start;
+  font-family: var(--font-mono); font-size: clamp(0.72rem, 0.85vw, 0.8rem);
+  color: var(--color-bridge-deep);
+  background: color-mix(in oklch, var(--color-bridge) 10%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-bridge) 28%, transparent);
+  padding: 0.35em 0.75em; white-space: nowrap;
+}
+.fill-guide .fill-val {
+  font-size: clamp(0.86rem, 1.05vw, 0.95rem); line-height: 1.85; color: var(--color-body);
+}
+.fill-guide .fill-val strong { color: var(--color-body-strong); font-weight: 700; }
+@media (max-width: 560px) {
+  .fill-guide li { grid-template-columns: 1fr; gap: 0.55em; }
+}
+
 /* ── 3列カード ── */
 .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2em; margin-top: 2em; }
 @media (max-width: 760px) { .cols-3 { grid-template-columns: 1fr; } }
@@ -508,7 +532,11 @@ h1.page-title, h2.page-title {
     <div class="page-inner">
       <span class="eyebrow">Step 1 — 壁打ち</span>
       <h2 class="page-title">ステップ1:可視化の検討 <span class="mark">(壁打ち)</span></h2>
-      <p class="page-lead">目的:どんな指標・グラフにするかをAIと相談し、要件を固めます。<strong>選んだデータのデータ説明文</strong>(前のページ)を「データ説明文を貼る」の部分に貼り付けてください。</p>
+      <p class="page-lead">目的:どんな指標・グラフにするかをAIと相談し、要件を固めます。プロンプトの中に<strong>2箇所の記入欄</strong>があります。</p>
+      <ul class="fill-guide">
+        <li><span class="fill-key">私のデータ(説明文)</span><span class="fill-val">選んだデータの説明文(02〜04ページ)をコピーして貼り付けます。CSVそのものはアップロードしません。</span></li>
+        <li><span class="fill-key">私の目的・見たいこと</span><span class="fill-val"><strong>何のために見たいのか、どんな切り口が気になるのか</strong>を、自分の言葉で書き添えます。<strong>空欄のままでも進められます</strong>が、ここを埋めるほどAIの提案が自分の業務に近づきます。うまく書けないときは、AIの質問に答えていくうちに固まっていくので大丈夫です。</span></li>
+      </ul>
       <div class="code-box">
         <div class="code-box-head">
           <span class="code-box-label">Prompt — Step 1</span>
@@ -553,7 +581,10 @@ h1.page-title, h2.page-title {
     <div class="page-inner">
       <span class="eyebrow">Step 2 — 設計</span>
       <h2 class="page-title">ステップ2:デザイン → <span class="mark">設計仕様書</span></h2>
-      <p class="page-lead">目的:見た目を相談し、ここまでの要件とデザインを1つの「設計仕様書」にまとめます。<strong>ステップ1と同じスレッド</strong>で続けてください。</p>
+      <p class="page-lead">目的:見た目を相談し、ここまでの要件とデザインを1つの「設計仕様書」にまとめます。<strong>ステップ1と同じスレッド</strong>で続けてください(前のやり取りを引き継ぐため、新しいスレッドにしないでください)。</p>
+      <ul class="fill-guide">
+        <li><span class="fill-key">デザインの希望</span><span class="fill-val">雰囲気・配色・レイアウトなど、<strong>好みがあれば書きます</strong>。<strong>空欄でも構いません</strong>。イメージが固まっていない場合は、まず空欄で送ってAIに案を出してもらい、その中から選ぶ進め方でも大丈夫です。</span></li>
+      </ul>
       <div class="code-box">
         <div class="code-box-head">
           <span class="code-box-label">Prompt — Step 2</span>
@@ -589,7 +620,11 @@ h1.page-title, h2.page-title {
     <div class="page-inner">
       <span class="eyebrow idg">Step 3 — 実装</span>
       <h2 class="page-title">ステップ3:実装 <span class="mark">(新規スレッド)</span></h2>
-      <p class="page-lead">目的:まっさらな<strong>新しいスレッド</strong>で、設計仕様書とデータ説明文から一気に作らせます。</p>
+      <p class="page-lead">目的:まっさらな<strong>新しいスレッド</strong>で、一気に作らせます。ここでは<strong>2箇所に貼り付け</strong>ます。</p>
+      <ul class="fill-guide">
+        <li><span class="fill-key">設計仕様書</span><span class="fill-val">ステップ2でAIが出力した設計仕様書を、そのままコピーして貼り付けます。</span></li>
+        <li><span class="fill-key">使用データ</span><span class="fill-val">選んだデータの説明文(02〜04ページ)を、<strong>もう一度</strong>貼り付けます。新しいスレッドには前の会話が引き継がれていないため、ここで改めて渡す必要があります。</span></li>
+      </ul>
       <div class="code-box">
         <div class="code-box-head">
           <span class="code-box-label">Prompt — Step 3</span>
